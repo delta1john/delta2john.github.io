@@ -763,14 +763,15 @@
         .gallery-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            grid-template-rows: repeat(3, 200px);
-            gap: 1rem;
+            grid-auto-rows: 200px;
+            gap: 0.75rem;
         }
 
         .gallery-item {
-            border-radius: 20px;
+            border-radius: 16px;
             overflow: hidden;
             position: relative;
+            cursor: pointer;
         }
 
         .gallery-item img {
@@ -782,8 +783,135 @@
 
         .gallery-item:hover img { transform: scale(1.06); }
 
-        .gallery-item:nth-child(1) { grid-column: 1 / 3; grid-row: 1 / 3; }
-        .gallery-item:nth-child(4) { grid-column: 3 / 5; grid-row: 2 / 4; }
+        .gallery-item::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0);
+            transition: background 0.3s;
+            pointer-events: none;
+        }
+
+        .gallery-item:hover::after {
+            background: rgba(0,0,0,0.08);
+        }
+
+        .gallery-item .gallery-zoom {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 44px;
+            height: 44px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            transition: transform 0.3s;
+            color: var(--dark);
+            font-size: 0.9rem;
+        }
+
+        .gallery-item:hover .gallery-zoom {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        /* Spanning items */
+        .gallery-item.span-wide { grid-column: span 2; }
+        .gallery-item.span-tall { grid-row: span 2; }
+        .gallery-item.span-big { grid-column: span 2; grid-row: span 2; }
+
+        /* ═══════════ LIGHTBOX ═══════════ */
+        .lightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            cursor: pointer;
+            animation: lbFadeIn 0.3s ease;
+        }
+
+        .lightbox.open { display: flex; }
+
+        @keyframes lbFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .lightbox-img {
+            max-width: 85vw;
+            max-height: 85vh;
+            border-radius: 16px;
+            box-shadow: 0 20px 80px rgba(0,0,0,0.4);
+            object-fit: contain;
+            cursor: default;
+            animation: lbZoomIn 0.3s ease;
+        }
+
+        @keyframes lbZoomIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            width: 48px;
+            height: 48px;
+            background: rgba(255,255,255,0.15);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.3rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+
+        .lightbox-close:hover { background: rgba(255,255,255,0.3); }
+
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 48px;
+            height: 48px;
+            background: rgba(255,255,255,0.15);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+
+        .lightbox-nav:hover { background: rgba(255,255,255,0.3); }
+        .lightbox-prev { left: 1.5rem; }
+        .lightbox-next { right: 1.5rem; }
+
+        .lightbox-counter {
+            position: absolute;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255,255,255,0.6);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
 
         /* ═══════════════ ABOUT STRIP ═══════════════ */
         .about-strip {
@@ -1075,11 +1203,12 @@
 
             .gallery-grid {
                 grid-template-columns: 1fr 1fr;
-                grid-template-rows: repeat(4, 180px);
+                grid-auto-rows: 180px;
             }
 
-            .gallery-item:nth-child(1) { grid-column: 1 / 3; grid-row: 1 / 2; }
-            .gallery-item:nth-child(4) { grid-column: 1 / 3; grid-row: 4 / 5; }
+            .gallery-item.span-big { grid-column: span 2; grid-row: span 1; }
+            .gallery-item.span-wide { grid-column: span 2; }
+            .gallery-item.span-tall { grid-row: span 1; }
 
             .footer-top {
                 grid-template-columns: 1fr;
@@ -1097,10 +1226,11 @@
             .stats-row { gap: 1.5rem; }
             .gallery-grid {
                 grid-template-columns: 1fr;
-                grid-template-rows: repeat(6, 200px);
+                grid-auto-rows: 200px;
             }
-            .gallery-item:nth-child(1),
-            .gallery-item:nth-child(4) { grid-column: auto; grid-row: auto; }
+            .gallery-item.span-big,
+            .gallery-item.span-wide { grid-column: auto; }
+            .gallery-item.span-tall { grid-row: auto; }
         }
     </style>
 </head>
@@ -1359,26 +1489,81 @@
         <p>Take a peek at our beautifully designed space — crafted to inspire wonder.</p>
     </div>
     <div class="gallery-grid">
-        <div class="gallery-item reveal">
-            <img src="store-interior.png" alt="Ahazi Kids Store Interior">
+        <div class="gallery-item span-big reveal" onclick="openLightbox(0)">
+            <img src="store-interior.png" alt="Ahazi Kids Store — full interior with tree decor and hanging plants">
+            <div class="gallery-zoom"><i class="fa-solid fa-expand"></i></div>
         </div>
-        <div class="gallery-item reveal">
-            <img src="reading-nook.png" alt="Kids Reading Nook">
+        <div class="gallery-item reveal" onclick="openLightbox(1)">
+            <img src="toy-shelves.png" alt="Educational toys and games on colourful shelves">
+            <div class="gallery-zoom"><i class="fa-solid fa-expand"></i></div>
         </div>
-        <div class="gallery-item reveal">
-            <img src="toy-shelves-2.png" alt="Toy Shelves">
+        <div class="gallery-item reveal" onclick="openLightbox(2)">
+            <img src="scooters.png" alt="LED scooters in multiple colours">
+            <div class="gallery-zoom"><i class="fa-solid fa-expand"></i></div>
         </div>
-        <div class="gallery-item reveal">
-            <img src="logo-sign.png" alt="Ahazi Kids Sign">
+        <div class="gallery-item reveal" onclick="openLightbox(3)">
+            <img src="reading-nook.png" alt="Children's reading nook with bunny chairs">
+            <div class="gallery-zoom"><i class="fa-solid fa-expand"></i></div>
         </div>
-        <div class="gallery-item reveal">
-            <img src="counter.png" alt="Store Counter">
+        <div class="gallery-item span-wide reveal" onclick="openLightbox(4)">
+            <img src="girls-toys.png" alt="Dolls, teddy bears and pink toys aisle">
+            <div class="gallery-zoom"><i class="fa-solid fa-expand"></i></div>
         </div>
-        <div class="gallery-item reveal">
-            <img src="electric-cars.png" alt="Electric Cars Section">
+        <div class="gallery-item reveal" onclick="openLightbox(5)">
+            <img src="strollers.png" alt="Premium baby strollers and prams">
+            <div class="gallery-zoom"><i class="fa-solid fa-expand"></i></div>
+        </div>
+        <div class="gallery-item reveal" onclick="openLightbox(6)">
+            <img src="ride-on-toys.png" alt="Colourful ride-on twist cars">
+            <div class="gallery-zoom"><i class="fa-solid fa-expand"></i></div>
+        </div>
+        <div class="gallery-item reveal" onclick="openLightbox(7)">
+            <img src="action-toys.png" alt="Action figures and robot toys">
+            <div class="gallery-zoom"><i class="fa-solid fa-expand"></i></div>
+        </div>
+        <div class="gallery-item reveal" onclick="openLightbox(8)">
+            <img src="counter.png" alt="Ahazi Kids store counter with display">
+            <div class="gallery-zoom"><i class="fa-solid fa-expand"></i></div>
+        </div>
+        <div class="gallery-item span-wide reveal" onclick="openLightbox(9)">
+            <img src="store-wide.png" alt="Wide view — strollers, plush animals, walkers">
+            <div class="gallery-zoom"><i class="fa-solid fa-expand"></i></div>
+        </div>
+        <div class="gallery-item reveal" onclick="openLightbox(10)">
+            <img src="baby-accessories.png" alt="Baby bibs, utensils and feeding accessories">
+            <div class="gallery-zoom"><i class="fa-solid fa-expand"></i></div>
+        </div>
+        <div class="gallery-item reveal" onclick="openLightbox(11)">
+            <img src="bicycles.png" alt="Kids' bicycles lined up outdoors">
+            <div class="gallery-zoom"><i class="fa-solid fa-expand"></i></div>
+        </div>
+        <div class="gallery-item reveal" onclick="openLightbox(12)">
+            <img src="electric-cars.png" alt="Electric ride-on cars and jeeps">
+            <div class="gallery-zoom"><i class="fa-solid fa-expand"></i></div>
+        </div>
+        <div class="gallery-item reveal" onclick="openLightbox(13)">
+            <img src="outdoor-toys.png" alt="Ride-on tractors and trucks">
+            <div class="gallery-zoom"><i class="fa-solid fa-expand"></i></div>
+        </div>
+        <div class="gallery-item span-wide reveal" onclick="openLightbox(14)">
+            <img src="logo-sign.png" alt="Ahazi Kids in-store sign">
+            <div class="gallery-zoom"><i class="fa-solid fa-expand"></i></div>
+        </div>
+        <div class="gallery-item reveal" onclick="openLightbox(15)">
+            <img src="toy-shelves-2.png" alt="More toys on pastel shelves">
+            <div class="gallery-zoom"><i class="fa-solid fa-expand"></i></div>
         </div>
     </div>
 </section>
+
+<!-- ═══════════ LIGHTBOX ═══════════ -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+    <button class="lightbox-close" onclick="closeLightbox(event, true)"><i class="fa-solid fa-xmark"></i></button>
+    <button class="lightbox-nav lightbox-prev" onclick="navLightbox(event, -1)"><i class="fa-solid fa-chevron-left"></i></button>
+    <img class="lightbox-img" id="lightboxImg" src="" alt="">
+    <button class="lightbox-nav lightbox-next" onclick="navLightbox(event, 1)"><i class="fa-solid fa-chevron-right"></i></button>
+    <div class="lightbox-counter" id="lightboxCounter"></div>
+</div>
 
 <!-- ═══════════ ABOUT ═══════════ -->
 <section class="about-strip" id="about">
@@ -1511,3 +1696,54 @@
     const confettiContainer = document.getElementById('confetti');
     const colors = ['#F4A5B8', '#FFD93D', '#8ECDB0', '#B8E4F0', '#D4B8E0', '#FF7F7F'];
     for (let i = 0; i < 25; i++) {
+        const dot = document.createElement('div');
+        dot.classList.add('confetti-dot');
+        dot.style.left = Math.random() * 100 + '%';
+        dot.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        dot.style.animationDelay = Math.random() * 8 + 's';
+        dot.style.animationDuration = (6 + Math.random() * 6) + 's';
+        dot.style.width = (4 + Math.random() * 8) + 'px';
+        dot.style.height = dot.style.width;
+        confettiContainer.appendChild(dot);
+    }
+
+    // ── Lightbox ──
+    const galleryImages = document.querySelectorAll('.gallery-item img');
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+    const lightboxCounter = document.getElementById('lightboxCounter');
+    let currentIndex = 0;
+
+    function openLightbox(index) {
+        currentIndex = index;
+        lightboxImg.src = galleryImages[index].src;
+        lightboxImg.alt = galleryImages[index].alt;
+        lightboxCounter.textContent = (index + 1) + ' / ' + galleryImages.length;
+        lightbox.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox(e, force) {
+        if (force || e.target === lightbox) {
+            lightbox.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+    }
+
+    function navLightbox(e, dir) {
+        e.stopPropagation();
+        currentIndex = (currentIndex + dir + galleryImages.length) % galleryImages.length;
+        lightboxImg.src = galleryImages[currentIndex].src;
+        lightboxImg.alt = galleryImages[currentIndex].alt;
+        lightboxCounter.textContent = (currentIndex + 1) + ' / ' + galleryImages.length;
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (!lightbox.classList.contains('open')) return;
+        if (e.key === 'Escape') closeLightbox(e, true);
+        if (e.key === 'ArrowLeft') navLightbox(e, -1);
+        if (e.key === 'ArrowRight') navLightbox(e, 1);
+    });
+</script>
+</body>
+</html>
