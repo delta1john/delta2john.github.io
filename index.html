@@ -1001,12 +1001,18 @@
 
         /* ═══════════════ SCROLL ANIMATIONS ═══════════════ */
         .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Only hide elements if JS is confirmed working */
+        .js-enabled .reveal {
             opacity: 0;
             transform: translateY(30px);
             transition: opacity 0.8s ease, transform 0.8s ease;
         }
 
-        .reveal.visible {
+        .js-enabled .reveal.visible {
             opacity: 1;
             transform: translateY(0);
         }
@@ -1423,7 +1429,7 @@
                     <div class="visit-detail-icon"><i class="fa-solid fa-phone"></i></div>
                     <div>
                         <h4>Get in Touch</h4>
-                        <p><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="90f9fef6ffd0f1f8f1eaf9fbf9f4e3bef5e4">[email&#160;protected]</a></p>
+                        <p>info@ahazikids.et</p>
                     </div>
                 </div>
             </div>
@@ -1468,7 +1474,7 @@
                 <h4>Info</h4>
                 <a href="#about">About Us</a>
                 <a href="#visit">Store Location</a>
-                <a href="/cdn-cgi/l/email-protection#7910171f1639181118031012101d0a571c0d">Contact</a>
+                <a href="mailto:info@ahazikids.et">Contact</a>
                 <a href="#visit">Opening Hours</a>
             </div>
         </div>
@@ -1479,7 +1485,10 @@
     </div>
 </footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
+    // ── Enable JS-dependent animations ──
+    document.documentElement.classList.add('js-enabled');
+
     // ── Navbar scroll effect ──
     const navbar = document.getElementById('navbar');
     window.addEventListener('scroll', () => {
@@ -1495,11 +1504,10 @@
                 observer.unobserve(entry.target);
             }
         });
-    }, { threshold: 0.15 });
+    }, { threshold: 0.1 });
     revealEls.forEach(el => observer.observe(el));
 
     // ── Confetti particles ──
     const confettiContainer = document.getElementById('confetti');
     const colors = ['#F4A5B8', '#FFD93D', '#8ECDB0', '#B8E4F0', '#D4B8E0', '#FF7F7F'];
     for (let i = 0; i < 25; i++) {
-    
